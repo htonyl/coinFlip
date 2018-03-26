@@ -69,8 +69,6 @@ for i in range(1, len(hist)//wfv_window + 1):
 
     # Reinitialize weight
     model.set_weights(init_weight)
-    if (model.get_weights()[0] != init_weight[0]).all():
-        print("NOT INIT!")
 
     # Fit model
     model.fit(X_train, y_train, epochs=3, callbacks=[], batch_size=64)

@@ -21,41 +21,9 @@ app.use(cors());
 
 // Setup logger
 app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:http-version" :status :res[content-length] :response-time ms'));
-// app.use(morgan('common'));
+
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
-
-var documents = {
-    'documents': [
-        { 'id': '1', 'language': 'en', 'text': 'I really enjoy the new XBox One S. It has a clean look, it has 4K/HDR resolution and it is affordable.' },
-        { 'id': '2', 'language': 'es', 'text': 'Este ha sido un dia terrible, llegué tarde al trabajo debido a un accidente automobilistico.' },
-    ]
-};
-
-var data = {
-    "Inputs": {
-        "input1": {
-            "ColumnNames": [
-                "Column 0",
-                "Relative Compactness",
-                "Surface Area",
-                "Wall Area",
-                "Roof Area",
-                "Overall Height",
-                "Orientation",
-                "Glazing Area",
-                "Glazing Area Distribution",
-                "Heating Load",
-                "Cooling Load"
-            ],
-            "Values": [
-                ["192", "0.98", "514.5", "294", "110.25", "7", "2", "0.1", "4", "24.38", "25.91"],
-                ["192", "0.98", "514.5", "294", "110.25", "7", "2", "0.1", "4", "30.38", "30.91"],
-            ]
-        }
-    },
-    "GlobalParameters": {}
-};
 
 const spawn = require('child_process').spawn;
 const axiosRSSAPI = axios.create({
@@ -69,11 +37,10 @@ app.get('/api/predict', (req, res) => {
             var data = response.data.items;
             var titles = [];
             for (var i = 0; i < data.length; i++) {
-                // console.log(data[i].title);
                 titles = titles.concat(data[i].title.split(" ").join(","));
-                // console.log(titles);
             }
             var predict_ps = spawn('python3', ['../prediction/predict.py', titles.join("|")]);
+
             predict_ps.stdout.on('data', (data) => {
                 var pred = data.toString().split(",");
                 var response = [];
@@ -88,6 +55,7 @@ app.get('/api/predict', (req, res) => {
                 console.log(`stdout: ${data}`);
                 res.send({ res: response });
             });
+
             predict_ps.stderr.on('data', (data) => {
                 console.log(`stderr: ${data}`);
             });
@@ -103,7 +71,6 @@ app.get('/api/predict', (req, res) => {
 });
 
 app.get('/api/azure', (req, res) => {
-
     axiosMlAPI.post("", data)
         .then((response) => {
             res.send({
@@ -144,7 +111,7 @@ app.get('/api/keyphrases', (req, res) => {
 
 // Always return the main index.html, so react-router render the route in the client
 app.get('*', (req, res) => {
-    res.send({ res: 'Welcome to BidCoin backend!' });
+    res.send({ res: 'Welcome to CoinFlip backend!' });
 });
 
 module.exports = app;

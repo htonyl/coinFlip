@@ -1,12 +1,13 @@
 import React, { Component } from 'react';
 import './App.css';
-import { BrowserRouter, Link} from 'react-router-dom'
+import { BrowserRouter, Link } from 'react-router-dom'
 import { Route } from 'react-router-dom'
 import FirstPage from './components/firstPage'
-import {Popup,Button,Transition,Menu, Label} from 'semantic-ui-react'
+import { Popup, Button, Transition, Menu, Label } from 'semantic-ui-react'
 import AboutUs from './components/aboutUs'
 import firebase from 'firebase'
 import config from './key/keys.js'
+
 class App extends Component {
   constructor(props){
     super(props);
@@ -14,7 +15,7 @@ class App extends Component {
       current_price: null,
       changing: false
     }
-    
+
     this.firebase = firebase.initializeApp(config);
     var bitcoinUrl = 'https://api.coindesk.com/v1/bpi/currentprice.json';
     let that = this;
@@ -27,7 +28,7 @@ class App extends Component {
           })
           console.log(out)
         })
-        .catch(err => { throw err });    
+        .catch(err => { throw err });
     var newsUrl = 'https://api.rss2json.com/v1/api.json?rss_url=http://feed.informer.com/digests/I2GGLAVR70/feeder.rss'
     fetch(newsUrl)
         .then(res => res.json())
@@ -47,7 +48,7 @@ class App extends Component {
     var intervalIdNews = setInterval(this.newsTimer.bind(this), 4000);
     this.setState({intervalIdNews: intervalIdNews});
   }
- 
+
   componentWillUnmount(){
         // use intervalId from the state to clear the interval
         clearInterval(this.state.intervalId);
@@ -72,7 +73,7 @@ class App extends Component {
           })
           console.log(out)
         })
-        .catch(err => { throw err });    
+        .catch(err => { throw err });
     }
   render() {
     if(this.state.current_price && this.state.news){
@@ -80,16 +81,16 @@ class App extends Component {
       <BrowserRouter>
         <div>
         <Menu>
-          <Menu.Item header><Link to ='/'>BidCoin</Link> </Menu.Item>
+          <Menu.Item header><Link to ='/'>CoinFlip</Link> </Menu.Item>
           <Menu.Item name='aboutUs' ><Link to ='/ii'> Make Comments</Link> </Menu.Item>
-          <Menu.Item name = 'Current Bitcoin Price: '> 
+          <Menu.Item name = 'Current Bitcoin Price: '>
           <Transition animation={'flash'} duration={200} visible={this.state.changing}>
           <div>
           <Label  color='teal' >
             EUR
             <Label.Detail>{this.state.current_price.bpi.EUR.rate}</Label.Detail>
           </Label>
-          
+
           <Label  color='orange' >
             USD
           <Label.Detail>{this.state.current_price.bpi.USD.rate}</Label.Detail>
@@ -105,12 +106,12 @@ class App extends Component {
             on='hover'
             position='bottom left'
           />
-          
+
           </Menu.Item>
           </Menu>
             <Route exact path="/" render={props =><FirstPage  firebase={this.firebase} {...props} />}/>
             <Route exact path="/ii" render={props =><AboutUs firebase={this.firebase}  {...props} />}/>
-            
+
         </div>
       </BrowserRouter>
     );
