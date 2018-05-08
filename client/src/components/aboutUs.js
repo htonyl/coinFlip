@@ -31,28 +31,28 @@ class AboutUs extends Component {
                         this.props.firebase.database().ref('userInfo/predictionNum').transaction(function(queue_length) {
                             if(queue_length|| (queue_length === 0))
                             {
-                                queue_length++; 
+                                queue_length++;
                             }
                             return queue_length;
                         });
                         this.props.firebase.database().ref('userInfo/technology').transaction(function(queue_length) {
                             if(queue_length|| (queue_length === 0))
                             {
-                                queue_length = queue_length + Number(that.state.technology); 
+                                queue_length = queue_length + Number(that.state.technology);
                             }
                             return queue_length;
                         });
                         this.props.firebase.database().ref('userInfo/community').transaction(function(queue_length) {
                             if(queue_length|| (queue_length === 0))
                             {
-                                queue_length = queue_length + Number(that.state.community); 
+                                queue_length = queue_length + Number(that.state.community);
                             }
                             return queue_length;
                         });
                         this.props.firebase.database().ref('userInfo/news').transaction(function(queue_length) {
                             if(queue_length|| (queue_length === 0))
                             {
-                                queue_length = queue_length + Number(that.state.news); 
+                                queue_length = queue_length + Number(that.state.news);
                             }
                             return queue_length;
                         });
@@ -78,7 +78,7 @@ class AboutUs extends Component {
 
     render() {
         // let that = this;
-        return ( 
+        return (
             <div>
                 <Container>
                 <Header as='h2'>Comments from others</Header>
@@ -111,16 +111,16 @@ class AboutUs extends Component {
                                                 </Label>
                                                 <Label horizontal as='a' color='brown' size='small'>
                                                 News
-                                                <Label.Detail>{d.data.news+'%'}</Label.Detail>                                    
+                                                <Label.Detail>{d.data.news+'%'}</Label.Detail>
                                                 </Label>
                                             </List.Content>
                                         </List.Item>
                                 )}
                                 )
-                            
+
                         }
-                        
-                       
+
+
                     </List>
                     </Segment>
                     </Container>

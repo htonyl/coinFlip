@@ -19,10 +19,11 @@ class Chart extends Component {
             var historyData =  out.dataset.data;
             // eslint-disable-next-line
             historyData.map(function(data, index){
-                let unixTime = moment(data[0], 'YYYY-MM-DD').unix();
+                let date = moment(data[0], 'YYYY-MM-DD');
+                let unixTime = date.unix();
                 let high = data[2];
                 let low = data[3];
-                let finalData = {index: index, time: unixTime, high: high, low: low};
+                let finalData = {index: index, date: date._i, time: unixTime, high: high, low: low};
                 that.finalHistoryData.push(finalData);
             })
             that.setState({
@@ -51,7 +52,12 @@ class Chart extends Component {
                     </Header.Subheader>
                 </Header>
                 <div style={{display: 'flex',alignItems: 'center',justifyContent: 'center'}}>
-                <BitLineChart changeNum = {this.changeNum.bind(this)} style= {{margin: '0 auto'}} data = {this.state.data}><Button primary floated='right'>Zoom Out</Button></BitLineChart>
+                <BitLineChart
+                  changeNum={this.changeNum.bind(this)}
+                  style={{margin: '0 auto'}}
+                  data={this.state.data}>
+                  <Button primary floated='right'>Zoom Out</Button>
+                </BitLineChart>
                 </div>
                 </Container>
             <div style={{display: 'flex',alignItems: 'center',justifyContent: 'center'}}>
