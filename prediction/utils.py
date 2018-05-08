@@ -9,7 +9,7 @@ from time import gmtime, strftime
 OLDEST_TIME = datetime.datetime(2015, 1, 1, 0, 0)
 INPUT_DIM = 128
 WINDOW_SIZE = 3
-def extract_text_n_corpus(docs):
+def extract_text_n_corpus(docs, remove_uniq=True):
     stoplist = set('bitcoin bitcoins s m d t u ll ur ve'.split())
     texts = [[word for word in re.split("\W+", re.sub(r"[,.]", "", doc.lower()))
             if word not in STOPWORDS.union(stoplist) and word is not ""] for doc in docs]
@@ -18,10 +18,11 @@ def extract_text_n_corpus(docs):
         for token in text:
             frequency[token] += 1
 
-    # Remove all empty strings
-    frequency[''] = 0
-    # Extract only duplicate words
-    texts = [[token for token in text if frequency[token] > 1] for text in texts]
+    if remove_uniq:
+        # Remove all empty strings
+        frequency[''] = 0
+        # Extract only duplicate words
+        texts = [[token for token in text if frequency[token] > 1] for text in texts]
 
     dictionary = corpora.Dictionary(texts)
     corpus = [dictionary.doc2bow(text) for text in texts]

@@ -63,3 +63,5 @@ typings/
 .DS_Store
 bundle.js
 .vscode
+*__pycache__/
+

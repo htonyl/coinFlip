@@ -14,10 +14,12 @@ X_raw = sys.argv[1]
 
 # max_gram_len = 360
 # X = np.array(sequence.pad_sequences(dict_doc2idx, maxlen=max_gram_len, padding='post'))
+X_raw = [s.replace(","," ") for s in X_raw.lower().split("|")]
 saved_path = os.path.join(os.path.dirname(__file__), './saved/')
-texts, corpus = extract_text_n_corpus(X_raw)
+texts, corpus = extract_text_n_corpus(X_raw, remove_uniq=False)
 word2vec = models.Word2Vec.load(saved_path + 'model_word2vec.pkl')
 X, invalid_rows = texts_to_word_vec(word2vec, texts)
+X = np.delete(X, invalid_rows, 0)
 
 # print("Verify persisted model...")
 weights = pickle.load(open(saved_path + 'model_weights_week.pkl', 'rb'))

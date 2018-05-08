@@ -53,7 +53,7 @@ def print_hist(h):
 init_weight = model.get_weights()
 
 ## Train model with Walk-forward validation
-wfv_window = 8
+wfv_window = 8 
 latest_news_date = y[:,0].max()
 print("Walk-forward validation starts: ")
 print("\tWindow = {}".format(wfv_window))
