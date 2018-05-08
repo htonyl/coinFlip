@@ -45,7 +45,7 @@ class Chart extends Component {
                 <Container>
                 <Header as='h2' icon textAlign='center'>
                 <Image circular size='tiny' src='/image/bitcoinLogo.png' />{' '}
-                    Bidcoin
+                    CoinFlip
                     <Header.Subheader>
                     Online Bitcoin Predictor and data analyzar
                     </Header.Subheader>
