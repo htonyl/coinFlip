@@ -132,4 +132,24 @@ cron.crawlSocialSource = () => {
   return posts;
 };
 
+const spawn = require('child_process').spawn;
+cron.predict = (refName) => {
+  firebase.database().ref(refName).once('value', function(snap){
+    let ref = firebase.database().ref(refName);
+    let keys = Object.keys(snap.val());
+    let titles = keys.map((elem)=>{
+      let v = snap.val()[elem];
+      let x = v.title.concat(v.description);
+      return x.split(" ").join(",");
+    });
+    let p = [0.7149973,0.71972513,0.82163894,0.9212881,0.6626796,0.88491166,0.8252516,1.0542636,0.94811213,0.87587315, 0.84287417,0.86606103,0.75775564,0.93446267,0.85360765,0.9223426,1.027064];
+    let predict_ps = spawn('python3', ['../prediction/predict.py', titles.join("|")]);
+    predict_ps.stdout.on('data', (data) => {
+        console.log(`stdout: ${data}`);
+    });
+    // for (var i = 0; i < keys.length; i++){
+    //   ref.child(keys[i]).update({ score: p[i] });
+    // }
+  });
+};
 module.exports = cron;
