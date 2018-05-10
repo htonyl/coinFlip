@@ -128,6 +128,7 @@ class LineCharts extends Component {
 
       return (
         <div className="highlight-bar-charts">
+          {React.cloneElement(this.props.children, { onClick: this.zoomOut.bind(this) })}
           <LineChart
             width={1200}
             height={400}
@@ -166,8 +167,7 @@ class LineCharts extends Component {
               <ReferenceArea yAxisId="1" x1={refAreaLeft} x2={refAreaRight}  strokeOpacity={0.3} /> ) : null
             }
           </LineChart>
-          <Button primary className="right floated" onClick={this.prediction.bind(this)} loading={this.state.loadPrediction}>Predict</Button>
-          {React.cloneElement(this.props.children, { onClick: this.zoomOut.bind(this) })}
+          <Button primary className="right floated" style={{display: "none"}} onClick={this.prediction.bind(this)} loading={this.state.loadPrediction}>Predict</Button>
         </div>
       );
   }

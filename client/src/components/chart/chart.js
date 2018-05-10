@@ -3,6 +3,7 @@ import moment from 'moment'
 import BitLineChart from './BitLineChart'
 import { Loader,Dimmer,Container, Header, Button, Image} from 'semantic-ui-react'
 import ListChart from './listChart'
+import NewsTable from './NewsTable'
 
 class Chart extends Component {
     constructor(props) {
@@ -57,13 +58,13 @@ class Chart extends Component {
                   changeNum={this.changeNum.bind(this)}
                   style={{margin: '0 auto'}}
                   data={this.state.data}>
-                  <Button primary floated='right'>Zoom Out</Button>
+                  <Button primary floated='right' style={{margin: '8px 0'}}>Zoom Out</Button>
                 </BitLineChart>
                 </div>
                 </Container>
-            <div style={{display: 'flex',alignItems: 'center',justifyContent: 'center'}}>
-                <ListChart num = {this.state.predictedNum} firebase = {this.props.firebase}/>
-            </div>
+                <div style={{display: 'flex',alignItems: 'center',justifyContent: 'center'}}>
+                    <NewsTable predictedPOC={1.12} currentPrice={this.state.data[0]} firebase={this.props.firebase}/>
+                </div>
             </div>
         );
         }else{

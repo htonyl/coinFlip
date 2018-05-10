@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Statistic,Header} from 'semantic-ui-react'
 import { RadialBarChart, RadialBar, Label} from 'recharts';
-
+import Prediction from './Prediction';
 class ListChart extends Component {
     constructor(props) {
         super(props);
@@ -77,18 +77,8 @@ class ListChart extends Component {
                         </RadialBarChart>
                     </th>
                     <th>
-                        <Header>Predicted Price (Tomorrow)</Header>
-                        <Statistic.Group horizontal>
-
-                        <Statistic horizontal>
-                            <Statistic.Value>{this.props.num}</Statistic.Value>
-                            <Statistic.Label>AI Prediction ($USD)</Statistic.Label>
-                        </Statistic>
-
-                        </Statistic.Group>
-
+                        <Prediction {...this.props} firebase={this.firebase}></Prediction>
                     </th>
-
                 </tr>
             </table>
 
