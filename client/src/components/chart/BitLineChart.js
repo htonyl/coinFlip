@@ -5,7 +5,6 @@ import { Legend, LineChart, Line, CartesianGrid, XAxis, YAxis, Tooltip, Referenc
 class LineCharts extends Component {
     constructor(props) {
         super(props);
-        let that = this;
         this.finalData = [...this.props.data];
         this.state = {
           data: this.finalData,
@@ -20,27 +19,30 @@ class LineCharts extends Component {
           bottom2: 'dataMin-20',
           animation: true
         };
-
-        // fetch('http://127.0.0.1:9000/api/predict')
-        // .then(res => res.json())
-        // .then((out) => {
-        //     var original = this.state.data[0].high;
-        //     var get_data = [];
-        //     // eslint-disable-next-line
-        //     out.res.map(function(d){
-        //         get_data = get_data.concat({index: d.index, time: 0, high: Number(original*d.high).toFixed(2), low:Number(original*d.low).toFixed(2)});
-        //     });
-        //     get_data = get_data.reverse();
-        //     console.log(get_data);
-        //     this.finalData = [...get_data,...this.finalData];
-        //     that.setState({loadPrediction: false});
-        //     // that.setState({data: [...get_data,...this.state.data]} )
-        // })
-        // .catch(err => { throw err });
+        // this.fetchPrediction();
     }
 
     componentDidMount(){
       this.zoomOut();
+    }
+
+    fetchPrediction() {
+      fetch('http://127.0.0.1:9000/api/predict')
+      .then(res => res.json())
+      .then((out) => {
+          var original = this.state.data[0].high;
+          var get_data = [];
+          // eslint-disable-next-line
+          out.res.map(function(d){
+              get_data = get_data.concat({index: d.index, time: 0, high: Number(original*d.high).toFixed(2), low:Number(original*d.low).toFixed(2)});
+          });
+          get_data = get_data.reverse();
+          console.log(get_data);
+          this.finalData = [...get_data,...this.finalData];
+          this.setState({loadPrediction: false});
+          // that.setState({data: [...get_data,...this.state.data]} )
+      })
+      .catch(err => { throw err });
     }
 
     getAxisYDomain(fromTime, toTime, ref, offset){

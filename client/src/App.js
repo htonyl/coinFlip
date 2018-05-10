@@ -2,9 +2,9 @@ import React, { Component } from 'react';
 import './App.css';
 import { BrowserRouter, Link } from 'react-router-dom'
 import { Route } from 'react-router-dom'
-import FirstPage from './components/firstPage'
 import { Popup, Button, Transition, Menu, Label } from 'semantic-ui-react'
-import AboutUs from './components/aboutUs'
+import Comments from './components/Comments'
+import Landing from './components/Landing'
 import firebase from 'firebase'
 import config from './key/keys.js'
 
@@ -16,65 +16,73 @@ class App extends Component {
       changing: false
     }
 
+    // Initialize firebase
     this.firebase = firebase.initializeApp(config);
+
+    // Get current price
     var bitcoinUrl = 'https://api.coindesk.com/v1/bpi/currentprice.json';
     let that = this;
     fetch(bitcoinUrl)
-        .then(res => res.json())
-        .then((out) => {
-          that.setState({
-            current_price: out,
-            changing: !that.state.changing
-          })
-          console.log(out)
-        })
-        .catch(err => { throw err });
-    var newsUrl = 'https://api.rss2json.com/v1/api.json?rss_url=http://feed.informer.com/digests/I2GGLAVR70/feeder.rss'
-    fetch(newsUrl)
-        .then(res => res.json())
-        .then((out) => {
-          var current = out.items[0];
-          that.setState({
-            news: out,
-            newsIndex:0,
-            currentNews: current
-          })
-          console.log(out);
-        })
+    .then(res => res.json())
+    .then((out) => {
+      that.setState({
+        current_price: out,
+        changing: !that.state.changing
+      })
+    })
+    .catch(err => { throw err });
   }
+
   componentDidMount() {
-    var intervalId = setInterval(this.timer.bind(this), 10000);
-    this.setState({intervalId: intervalId});
-    var intervalIdNews = setInterval(this.newsTimer.bind(this), 4000);
-    this.setState({intervalIdNews: intervalIdNews});
+    // Update price every 10 seconds & Slide news every 4 seconds
+    let intervalId = setInterval(this.handleUpdatePrice.bind(this), 10000);
+    let intervalIdNews = setInterval(this.handleSlideNews.bind(this), 4000);
+    this.setState({
+      intervalIdNews: intervalIdNews,
+      intervalId: intervalId
+    });
+
+    // Get recent news from firebase for header bar display
+    this.firebase.database().ref('scoredNews').on("value", (snap)=>{
+      let val = snap.val();
+      let news = Object.keys(val).map((elem)=>val[elem]);
+      this.setState({
+        news: news,
+        newsIndex: 0,
+        currentNews: news[0]
+      });
+    });
   }
 
   componentWillUnmount(){
-        // use intervalId from the state to clear the interval
-        clearInterval(this.state.intervalId);
-        clearInterval(this.state.intervalIdNews);
+    // use intervalId from the state to clear the interval
+    clearInterval(this.state.intervalId);
+    clearInterval(this.state.intervalIdNews);
   }
-  newsTimer(){
+
+  handleSlideNews(){
+    let newsIndex = (this.state.newsIndex + 1) % this.state.news.length;
     this.setState({
-      newsIndex: (this.state.newsIndex + 1)%10,
-      currentNews: this.state.news.items[this.state.newsIndex]
+      newsIndex: newsIndex,
+      currentNews: this.state.news[newsIndex]
     })
   }
-  timer() {
-        // setState method is used to update the statec
-        let that = this;
-        var bitcoinUrl = 'https://api.coindesk.com/v1/bpi/currentprice.json';
-        fetch(bitcoinUrl)
-        .then(res => res.json())
-        .then((out) => {
-          that.setState({
-            current_price: out,
-            changing: !that.state.changing
-          })
-          console.log(out)
-        })
-        .catch(err => { throw err });
-    }
+
+  handleUpdatePrice() {
+    // setState method is used to update the statec
+    let that = this;
+    var bitcoinUrl = 'https://api.coindesk.com/v1/bpi/currentprice.json';
+    fetch(bitcoinUrl)
+    .then(res => res.json())
+    .then((out) => {
+      that.setState({
+        current_price: out,
+        changing: !that.state.changing
+      })
+    })
+    .catch(err => { throw err });
+  }
+
   render() {
     if(this.state.current_price && this.state.news){
     return (
@@ -82,7 +90,7 @@ class App extends Component {
         <div>
         <Menu>
           <Menu.Item header><Link to ='/'>CoinFlip</Link> </Menu.Item>
-          <Menu.Item name='aboutUs' ><Link to ='/ii'> Make Comments</Link> </Menu.Item>
+          <Menu.Item name='aboutUs' ><Link to ='/comments'> Make Comments</Link> </Menu.Item>
           <Menu.Item name = 'Current Bitcoin Price: '>
           <Transition animation={'flash'} duration={200} visible={this.state.changing}>
           <div>
@@ -102,15 +110,15 @@ class App extends Component {
           <Popup
             trigger={<Button icon='newspaper' content={this.state.currentNews.title} style={{width:'700px'}}/>}
             header={'Author: '+this.state.currentNews.author}
-            content={'Publish Date: '+this.state.currentNews.pubDate}
+            content={'Publish Date: '+this.state.currentNews.time}
             on='hover'
             position='bottom left'
           />
 
           </Menu.Item>
           </Menu>
-            <Route exact path="/" render={props =><FirstPage  firebase={this.firebase} {...props} />}/>
-            <Route exact path="/ii" render={props =><AboutUs firebase={this.firebase}  {...props} />}/>
+            <Route exact path="/" render={props =><Landing firebase={this.firebase} {...props} />}/>
+            <Route exact path="/comments" render={props =><Comments firebase={this.firebase} {...props} />}/>
 
         </div>
       </BrowserRouter>

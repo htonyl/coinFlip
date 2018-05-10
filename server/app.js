@@ -6,7 +6,7 @@ const https = require('https');
 const axios = require('axios');
 const app = express();
 const cors = require('cors');
-const firebase = require('firebase');
+const cronJobs = require('./cron.js');
 
 require('dotenv').config();
 
@@ -18,14 +18,6 @@ const axiosMlAPI = axios.create({
     baseURL: 'https://ussouthcentral.services.azureml.net/workspaces/c7388f7ba8d44cdea621167d7842481f/services/99e6accc206b4d5bb2725fc950e4ac08/execute?api-version=2.0&details=true',
     headers: { 'Authorization': 'Bearer ' + process.env.AZURE_ML_KEY },
 });
-const firebaseApp = firebase.initializeApp({
-    apiKey: process.env.FIREBASE_KEY,
-    authDomain: "bidcoin-server.firebaseapp.com",
-    databaseURL: "https://bidcoin-server.firebaseio.com",
-    projectId: "bidcoin-server",
-    storageBucket: "bidcoin-server.appspot.com",
-    messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID
-});
 app.use(cors());
 
 // Setup logger
@@ -33,6 +25,12 @@ app.use(morgan(':remote-addr - :remote-user [:date[clf]] ":method :url HTTP/:htt
 
 // Serve static assets
 app.use(express.static(path.resolve(__dirname, '..', 'build')));
+
+// Register cron jobs
+cronJobs.crawlNewsSource();
+cronJobs.crawlSocialSource();
+setInterval(cronJobs.crawlNewsSource, 60*60*24*1000);
+setInterval(cronJobs.crawlSocialSource, 60*60*1000);
 
 const spawn = require('child_process').spawn;
 const axiosRSSAPI = axios.create({

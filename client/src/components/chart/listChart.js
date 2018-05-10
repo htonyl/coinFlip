@@ -2,12 +2,6 @@ import React, { Component } from 'react';
 import { Statistic,Header} from 'semantic-ui-react'
 import { RadialBarChart, RadialBar, Label} from 'recharts';
 
-// const style = {
-//     top: 0,
-//     left: 350,
-//     lineHeight: '24px'
-// };
-
 class ListChart extends Component {
     constructor(props) {
         super(props);

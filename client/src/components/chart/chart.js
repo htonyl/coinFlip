@@ -10,13 +10,14 @@ class Chart extends Component {
         this.state = {
           predictedNum: '__________'
         };
+
         this.historyURL = 'https://www.quandl.com/api/v3/datasets/BCHARTS/COINBASEUSD.json?api_key=Ld5Pj_h8zrsozT9ExZop&start_date=2017-01-14';
         this.finalHistoryData = [];
         let that = this;
         fetch(this.historyURL)
         .then(res => res.json())
         .then((out) => {
-            var historyData =  out.dataset.data;
+            let historyData =  out.dataset.data;
             // eslint-disable-next-line
             historyData.map(function(data, index){
                 let date = moment(data[0], 'YYYY-MM-DD');
@@ -29,16 +30,16 @@ class Chart extends Component {
             that.setState({
                 data: that.finalHistoryData
             })
-            console.log(that.finalHistoryData);
         })
         .catch(err => { throw err });
-
     }
+
     changeNum(num){
       this.setState({
         predictedNum:num
       })
     }
+
     render() {
         if(this.state.data){
         return (
