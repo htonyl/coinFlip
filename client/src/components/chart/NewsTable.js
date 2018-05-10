@@ -35,7 +35,7 @@ class NewsTable extends Component {
         const k = 5;
         let topk = this.state.posts.concat(this.state.news);
         if(pos){
-          topk.sort((a,b) => b.score-a.score);  
+          topk.sort((a,b) => b.score-a.score);
         }else{
           topk.sort((a,b) => a.score-b.score);
         }
@@ -96,7 +96,6 @@ class NewsTable extends Component {
                     }
                   </List>
                 </th>
-                
               </tr>
             </tbody>
           </table>

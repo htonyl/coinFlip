@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import './App.css';
 import { BrowserRouter, Link } from 'react-router-dom'
 import { Route } from 'react-router-dom'
-import { Popup, Button, Transition, Menu, Label } from 'semantic-ui-react'
+import { Popup, Button, Transition, Menu, Label, Image } from 'semantic-ui-react'
 import Comments from './components/Comments'
 import Landing from './components/Landing'
 import firebase from 'firebase'
@@ -89,8 +89,20 @@ class App extends Component {
       <BrowserRouter>
         <div>
         <Menu>
-          <Menu.Item header><Link to ='/'>CoinFlip</Link> </Menu.Item>
-          <Menu.Item name='aboutUs' ><Link to ='/comments'> Make Comments</Link> </Menu.Item>
+          <Menu.Item header>
+            <Link to ='/'>
+              <div style={{display: 'inline-block', margin: '0 5px'}}>
+                <Image circular size='tiny' src='/image/bitcoinLogo.png' style={{width:'2em'}}/>{' '}
+              </div>
+              <div style={{display: 'inline-block', color:'black', fontSize: '1.6em'}}>
+                CoinFlip
+              </div>
+            </Link>
+          </Menu.Item>
+          <Menu.Item name='aboutUs' >
+            <Link to ='/comments' style={{fontSize: '1.2em', color: 'black'}}>
+              Make Comments
+            </Link> </Menu.Item>
           <Menu.Item name = 'Current Bitcoin Price: '>
           <Transition animation={'flash'} duration={200} visible={this.state.changing}>
           <div>
@@ -106,7 +118,7 @@ class App extends Component {
           </div>
           </Transition>
           </Menu.Item>
-          <Menu.Item>
+          <Menu.Item style={{width:'100%', textAlign:'right'}}>
           <Popup
             trigger={<Button icon='newspaper' content={this.state.currentNews.title} style={{width:'700px'}}/>}
             header={'Author: '+this.state.currentNews.author}
@@ -117,7 +129,7 @@ class App extends Component {
 
           </Menu.Item>
           </Menu>
-            <Route exact path="/" render={props =><Landing firebase={this.firebase} {...props} />}/>
+            <Route exact path="/" render={props =><Landing firebase={this.firebase} currentPrice={this.state.current_price.bpi.USD.rate} {...props} />}/>
             <Route exact path="/comments" render={props =><Comments firebase={this.firebase} {...props} />}/>
 
         </div>

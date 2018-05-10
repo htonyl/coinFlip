@@ -46,13 +46,6 @@ class Chart extends Component {
         return (
             <div>
                 <Container>
-                <Header as='h2' icon textAlign='center'>
-                <Image circular size='tiny' src='/image/bitcoinLogo.png' />{' '}
-                    CoinFlip
-                    <Header.Subheader>
-                    Online Bitcoin Predictor and data analyzar
-                    </Header.Subheader>
-                </Header>
                 <div style={{display: 'flex',alignItems: 'center',justifyContent: 'center'}}>
                 <BitLineChart
                   changeNum={this.changeNum.bind(this)}

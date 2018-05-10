@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import {Label, Button, Segment} from 'semantic-ui-react'
 import Chart from './chart/chart'
+import Prediction from './chart/Prediction'
 
 class Landing extends Component {
   constructor(props){
@@ -33,8 +34,9 @@ class Landing extends Component {
     }
     return (
       <div ref={this.handleContextRef}>
+        <Prediction predictedPOC={1.04321} currentPrice={this.props.currentPrice} firebase={this.firebase}></Prediction>
         <Chart firebase = {this.firebase}/>
-        <Segment inverted size='mini' style={{margin: 0}}>
+        <Segment inverted size='mini' style={{margin: 0, position:'fixed', bottom: 0, width: '100%'}}>
         <Button size='mini' primary onClick={this.handleChatBot.bind(this)}>Chatbot</Button>
         <Label color = 'orange' horizontal>AI Prediction Value (%)</Label>
         <Label color = 'teal' horizontal>Users Grading Value (%)</Label>
