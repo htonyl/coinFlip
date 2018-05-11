@@ -133,7 +133,7 @@ cron.crawlSocialSource = () => {
 };
 
 const spawn = require('child_process').spawn;
-cron.predict = (refName) => {
+cron.predictEach = (refName) => {
   firebase.database().ref(refName).once('value', function(snap){
     let ref = firebase.database().ref(refName);
     let keys = Object.keys(snap.val());
@@ -152,4 +152,38 @@ cron.predict = (refName) => {
     // }
   });
 };
+
+cron.predict = () => {
+  firebase.database().ref('scoredNews').once('value', function(snap){
+    let keys = Object.keys(snap.val());
+    let titlesN = keys.map((elem)=>{
+      let v = snap.val()[elem];
+      // let x = v.title.concat(v.description);
+      let x = v.title;
+      return x.split(" ").join(",");
+    });
+    let scores = keys.map((elem)=>snap.val()[elem].score);
+    firebase.database().ref('scoredNews').once('value', function(snap){
+      let keys = Object.keys(snap.val());
+      let titlesP = keys.map((elem)=>{
+        let v = snap.val()[elem];
+        let x = v.title;
+        return x.split(" ").join(",");
+      });
+      scores = scores.concat(keys.map((elem)=>snap.val()[elem].score));
+      console.log(scores, scores.join(","));
+      let titles = titlesN.concat(titlesP);
+      console.log(titles.length);
+      let predict_ps = spawn('python3', ['../prediction/predict.py', titles.join("|")]);
+      predict_ps.stdout.on('data', (data) => {
+          console.log(`stdout: ${data}`);
+      });
+    });
+  });
+  // firebaseApp.database().ref('predictions').push().set({
+  //   timestamp: Date.now(),
+  //   type: 'daily',
+  //   value:
+  // });
+}
 module.exports = cron;

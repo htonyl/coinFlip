@@ -29,6 +29,7 @@ app.use(express.static(path.resolve(__dirname, '..', 'build')));
 // Register cron jobs
 cronJobs.crawlNewsSource();
 cronJobs.crawlSocialSource();
+cronJobs.predict();
 setInterval(cronJobs.crawlNewsSource, 60*60*24*1000);
 setInterval(cronJobs.crawlSocialSource, 60*60*1000);
 

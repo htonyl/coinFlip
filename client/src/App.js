@@ -87,22 +87,23 @@ class App extends Component {
     if(this.state.current_price && this.state.news){
     return (
       <BrowserRouter>
-        <div>
+        <div style={{backgroundColor: '#F9F9F9'}}>
         <Menu>
           <Menu.Item header>
             <Link to ='/'>
-              <div style={{display: 'inline-block', margin: '0 5px'}}>
-                <Image circular size='tiny' src='/image/bitcoinLogo.png' style={{width:'2em'}}/>{' '}
+              <div style={{display: 'inline-block', margin: '0 5px', verticalAlign: 'sub'}}>
+                <Image circular size='tiny' src='/image/coinflip_logo.png' style={{width:'2em'}}/>{' '}
               </div>
               <div style={{display: 'inline-block', color:'black', fontSize: '1.6em'}}>
                 CoinFlip
               </div>
             </Link>
           </Menu.Item>
-          <Menu.Item name='aboutUs' >
+          <Menu.Item name='comment' >
             <Link to ='/comments' style={{fontSize: '1.2em', color: 'black'}}>
-              Make Comments
-            </Link> </Menu.Item>
+              Comment
+            </Link>
+          </Menu.Item>
           <Menu.Item name = 'Current Bitcoin Price: '>
           <Transition animation={'flash'} duration={200} visible={this.state.changing}>
           <div>

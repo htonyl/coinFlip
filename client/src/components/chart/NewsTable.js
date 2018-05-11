@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
-import { Statistic, Header, List, Popup, Button} from 'semantic-ui-react'
-import { RadialBarChart, RadialBar, Label} from 'recharts';
+import { Statistic, Header, List, Popup, Button, Icon} from 'semantic-ui-react'
 import Prediction from './Prediction';
 import NewsTableRow from './NewsTableRow';
 
@@ -15,26 +14,29 @@ class NewsTable extends Component {
           topkIdx: 0
         };
 
-        let that = this;
         this.firebase = this.props.firebase;
-        this.firebase.database().ref('scoredNews').once('value', (snap) => {
-          let val = snap.val();
-          let news = Object.keys(val).map(elem => val[elem]);
-          that.setState({ news: news }, ()=>that.sortTopk(true));
-        });
-        this.firebase.database().ref('scoredPosts').once('value', (snap) => {
-          let val = snap.val();
-          let posts = Object.keys(val).map(elem => val[elem]);
-          that.setState({ posts: posts }, ()=>that.sortTopk(true));
-          console.log(posts);
-        });
-        this.handleClick = this.handleClick.bind(this)
+        this.handleClick = this.handleClick.bind(this);
     }
 
-    sortTopk(pos){
+    componentDidMount() {
+      let that = this;
+      this.firebase.database().ref('scoredNews').once('value', (snap) => {
+        let val = snap.val();
+        let news = Object.keys(val).map(elem => val[elem]);
+        that.setState({ news: news }, ()=>that.sortTopk(true));
+      });
+      this.firebase.database().ref('scoredPosts').once('value', (snap) => {
+        let val = snap.val();
+        let posts = Object.keys(val).map(elem => val[elem]);
+        that.setState({ posts: posts }, ()=>that.sortTopk(true));
+      });
+    }
+
+    sortTopk(active){
         const k = 5;
         let topk = this.state.posts.concat(this.state.news);
-        if(pos){
+
+        if(active){
           topk.sort((a,b) => b.score-a.score);
         }else{
           topk.sort((a,b) => a.score-b.score);
@@ -45,18 +47,18 @@ class NewsTable extends Component {
           topkSplit.push(topk.slice(k*(i-1), k*i));
         }
         topkSplit.push(topk.slice(topk.length-k, topk.length));
-        console.log(topkSplit);
+
         this.setState({
           topk: topkSplit
         });
     }
 
     handleClick(){
-      this.setState({ active: !this.state.active})
+      this.setState({ active: !this.state.active});
       if(this.state.active){
-        this.sortTopk(false)
+        this.sortTopk(false);
       }else{
-        this.sortTopk(true)
+        this.sortTopk(true);
       }
     }
 
@@ -64,13 +66,18 @@ class NewsTable extends Component {
       const { active } = this.state
       let topk = this.state.topk.length ? this.state.topk[this.state.topkIdx] : [];
       return (
-          <table style={{width:'100%', paddingTop: "24px"}}>
+        <div style={{width: '80%', margin:'auto'}}>
+          <Prediction currentPrice={this.props.currentPrice} firebase={this.firebase}></Prediction>
+          <table style={{width:'100%'}}>
             <thead>
               <tr>
                 <th style={{width:'100%', padding:'10px 20px', backgroundColor:'#F9F9F9', textAlign:'left', fontSize: 24}}>
-                  Top News / Posts
+                  Top News / Reddit Posts
                   <Button color='red' toggle active={active} onClick={this.handleClick} size='tiny' floated='right'>
-                    Toggle
+                    { this.state.active ?
+                      <Icon name="plus" style={{margin:0}}></Icon> :
+                      <Icon name="minus" style={{margin:0}}></Icon>
+                    }
                   </Button>
                 </th>
                 <th> </th>
@@ -87,7 +94,7 @@ class NewsTable extends Component {
                             <Popup
                               trigger={<NewsTableRow item={elem}></NewsTableRow>}
                               content='Hide the popup on any scroll event'
-                              on='click'
+                              on='hover'
                               hideOnScroll
                             />
                           </List.Item>
@@ -99,7 +106,7 @@ class NewsTable extends Component {
               </tr>
             </tbody>
           </table>
-
+        </div>
       );
     }
 }
