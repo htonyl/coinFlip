@@ -64,4 +64,5 @@ typings/
 bundle.js
 .vscode
 *__pycache__/
-
+*.swp
+saved

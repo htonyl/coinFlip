@@ -1,4 +1,4 @@
-import json, re, datetime
+import json, re, datetime, os
 from functools import reduce
 from collections import defaultdict
 from gensim import corpora, models, similarities
@@ -93,19 +93,28 @@ docs_flat = np.array(reduce(lambda c, v: c+v, docs.values()))
 texts_flat = np.array(reduce(lambda c, v: c+v, texts.values()))
 labels_flat = np.array(reduce(lambda c, v: c+v, labels.values()))
 
-## Generate dictionary model and word vector model
+with open("saved/data.texts_flat.npy", "wb") as f:
+    np.save(f, texts_flat)    
+with open("saved/data.labels_flat.npy", "wb") as f:
+    np.save(f, labels_flat)    
+
+## Load or save models
 print("Generate dictionary and word vector models...")
-dictionary = corpora.Dictionary(texts_flat)
+fname_dict = 'saved/model.dict.pkl'
+if os.path.isfile(fname_dict):
+    print("Load dict model from " + fname_dict)
+    dictionary = corpora.Dictionary.load(fname_dict)
+else:
+    print("Save dict model to " + fname_dict)
+    dictionary = corpora.Dictionary(texts_flat)
+    dictionary.save(fname_dict)
 dict_doc2idx = [dictionary.doc2idx(text) for text in texts_flat]
-word2vec = models.Word2Vec(texts_flat, size=400, window=5, min_count=5, workers=4)
 
-## Save models
-print("Save models to saved/")
-fname_dict = 'saved/model_dict.pkl'
-dictionary.save(fname_dict)
-fname_w2v = 'saved/model_word2vec.pkl'
-word2vec.save(fname_w2v)
-
-## Load models and verify
-verify_dictionary = corpora.Dictionary.load(fname_dict)
-verify_w2v = models.Word2Vec.load(fname_w2v)
+fname_w2v = 'saved/model.word2vec.pkl'
+if os.path.isfile(fname_w2v):
+    print("Load w2v model from " + fname_w2v)
+    word2vec = models.Word2Vec.load(fname_w2v)
+else:
+    print("Save w2v model to " + fname_w2v)
+    word2vec = models.Word2Vec(texts_flat, size=400, window=5, min_count=5, workers=4)
+    word2vec.save(fname_w2v)

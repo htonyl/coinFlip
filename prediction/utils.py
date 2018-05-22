@@ -34,6 +34,7 @@ def texts_to_word_vec(word2vec, texts):
     w2v_matrix = np.zeros((len(texts), INPUT_DIM, word2vec.vector_size))
     for idx, text in enumerate(texts):
         _text = [word2vec.wv[w] for w in text if w in word2vec.wv]
+        # short sentences are not used
         if len(_text) > WINDOW_SIZE:
             in_len = min([INPUT_DIM, len(_text)])
             w2v_matrix[idx][:in_len] = np.array(_text)[:in_len]
