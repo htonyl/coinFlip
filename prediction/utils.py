@@ -1,11 +1,12 @@
 from __future__ import print_function
-import json, re, datetime
+import json, re, datetime, torch
 import numpy as np
 from gensim.parsing.preprocessing import STOPWORDS
 from collections import defaultdict
 from gensim import corpora, models, similarities
 from time import gmtime, strftime
 
+CUDA_ENABLED = torch.cuda.is_available()
 OLDEST_TIME = datetime.datetime(2015, 1, 1, 0, 0)
 INPUT_DIM = 128
 WINDOW_SIZE = 3

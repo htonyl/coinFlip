@@ -1,25 +1,21 @@
-import collections
+import pandas as pd
+import numpy as np
+import collections, pickle, h5py
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 from torch.autograd import Variable
-
 from gensim import models
-
-import pandas as pd
-import numpy as np
-import pickle, h5py
-
 from sklearn.model_selection import train_test_split, KFold
 from preprocess_text import *
 from utils import *
-CUDA_ENABLED = False
 
 class Model(nn.Module):
     def __init__(self):
         super(Model, self).__init__()
         
+        # Define conv & fully connected layers
         conv = collections.OrderedDict()
         conv["conv1"] = nn.Conv1d(128, 128, WINDOW_SIZE)
         conv["conv2"] = nn.Conv1d(128, 64, 4)
@@ -37,18 +33,34 @@ class Model(nn.Module):
         fcn["fcn2"] = nn.Linear(400, 7)
         self.fcn = nn.Sequential(fcn)
 
+        # Use GPU
+        if CUDA_ENABLED:
+            self.conv = nn.DataParallel(self.conv).cuda()
+            self.fcn = nn.DataParallel(self.fcn).cuda()
+
+        # Initialize by small floating point numbers
+        self.reinitialize_params()
+
     def forward(self, x):
+        # Forward pass
         x = self.conv(x)
         x = x.view(x.size(0), -1)
         x = self.fcn(x)
         return x
 
+    def reinitialize_params(self):
+        def reinit(layer):
+            for l in layer.module if CUDA_ENABLED else layer:
+                if hasattr(l, 'weight'):
+                    nn.init.xavier_uniform_(l.weight, gain=np.sqrt(2))
+        reinit(self.conv)
+        reinit(self.fcn)
+
 class Network():
     def __init__(self):
         self.model = Model()
-        #self.loss_fcn = nn.MSELoss
         self.loss_fcn = F.mse_loss
-        self.optimizer = optim.SGD(self.model.parameters(), lr=0.001, momentum=0.8)
+        self.optimizer = optim.SGD(self.model.parameters(), lr=0.01, momentum=0.2)
         print(self.model)
 
     def train(self, X, y):
@@ -112,7 +124,7 @@ def print_hist(h):
     return "{}[${:.2f}]".format(h[0].strftime('%Y-%m-%d'), h[1])
 
 ## Train model with Walk-forward validation
-N_EPOCHS = 3
+N_EPOCHS = 8
 wfv_window = 8
 latest_news_date = y[:,0].max()
 print("Walk-forward validation starts: ")
@@ -128,19 +140,18 @@ for i in range(1, len(hist)//wfv_window + 1):
     X_train, y_train = X[train_idx], y[train_idx, 1:].reshape(-1, 7)
 
     # Reinitialize weight
-    # model.set_weights(init_weight)
+    net.model.reinitialize_params()
 
     # Fit model
     i=0
     for epoch in range(N_EPOCHS):
         for _x, _y in iterate_data(X_train, y_train, batch_size=300):
-            print("{}/{}".format(i, len(X_train)))
             loss = net.train(_x, _y)
             i+=300
-        print("Epoch {}: {}".format(epoch, loss))
+        print("Epoch {} ({}): {}".format(epoch, len(X_train), loss))
 
     # Define validation metrics
-    scores, pred, loss = np.empty((7)), np.empty((7, 7)), np.empty((7, 7))
+    scores, pred, pred_std, loss = np.empty((7)), np.empty((7, 7)), np.empty((7, 7)), np.empty((7, 7))
     correct_trend = np.empty((7, 7), dtype=np.int8)
     for d in range(0, 7):
         val_idx = np.where(y[:,0] == split_date + d)
@@ -149,6 +160,8 @@ for i in range(1, len(hist)//wfv_window + 1):
         # Calculate validation score
         scores[d], pred_all = net.test(X_val, y_val)
         # Predict future prices in a week
+        pred_all = pred_all.detach().cpu().numpy()
+        pred_std[d] = pred_all.std(axis=0)
         pred[d] = pred_all.mean(axis=0)
         # Calculate errors in prediction
         loss[d] = pred[d] - y_val[0]
@@ -158,6 +171,7 @@ for i in range(1, len(hist)//wfv_window + 1):
             .format(print_hist(hist_processed[split_date]),
                 split_date, scores.mean(), loss.max(), loss.min(), list(correct_trend.sum(axis=0))))
     print("\tErrors (first days): {}".format(" ".join(["{:.4f}".format(l) for l in loss[:,0]])))
+    print("\tSD (first days): {}".format(" ".join(["{:.4f}".format(l) for l in pred_std[:,0]])))
     print("\tAbsolute errors (avg by day): {}".format(" ".join(["{:.4f}".format(l) for l in abs(loss).mean(axis=0)])))
 
 ## Save model
